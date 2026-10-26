@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MINIMAX // Neural Tic-Tac-Toe</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="scanline"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">M</div>
+      <div>
+        <div class="brand-title">MINIMAX<span>//AI</span></div>
+        <div class="brand-sub">ADVERSARIAL DECISION ENGINE</div>
+      </div>
+    </div>
+    <div class="status" id="serverStatus"><i></i> <span>Connecting…</span></div>
+  </header>
+
+  <main class="app">
+    <section class="hero">
+      <div>
+        <div class="eyebrow">AI CASE STUDY • GAME PLAYING</div>
+        <h1>Teach an AI to<br><span>think ahead.</span></h1>
+        <p>Explore how Minimax evaluates future game states and chooses the best guaranteed move against an intelligent opponent.</p>
+      </div>
+      <div class="hero-stats">
+        <div><strong>3×3</strong><small>STATE SPACE</small></div>
+        <div><strong>MAX</strong><small>AI OBJECTIVE</small></div>
+        <div><strong>MIN</strong><small>OPPONENT</small></div>
+      </div>
+    </section>
+
+    <section class="control-row">
+      <div class="control-card">
+        <label>PLAY AS</label>
+        <div class="segmented">
+          <button class="active" data-symbol="X">X</button>
+          <button data-symbol="O">O</button>
+        </div>
+      </div>
+      <div class="control-card">
+        <label>AI MODE</label>
+        <select id="difficulty">
+          <option value="optimal">OPTIMAL • MINIMAX</option>
+          <option value="depth">DEPTH-LIMITED</option>
+          <option value="random">RANDOM BASELINE</option>
+        </select>
+      </div>
+      <button id="newGame" class="primary-btn">↻ NEW SIMULATION</button>
+    </section>
+
+    <section class="game-layout">
+      <div class="panel board-panel">
+        <div class="panel-head">
+          <div><span class="dot"></span> LIVE GAME STATE</div>
+          <span id="turnBadge">YOUR TURN</span>
+        </div>
+        <div id="statusText" class="game-status">Choose a move.</div>
+        <div id="board" class="board" aria-label="Tic Tac Toe board"></div>
+        <div class="scoreline">
+          <div><span>YOU</span><strong id="humanScore">0</strong></div>
+          <div><span>DRAW</span><strong id="drawScore">0</strong></div>
+          <div><span>AI</span><strong id="aiScore">0</strong></div>
+        </div>
+      </div>
+
+      <div class="panel analysis-panel">
+        <div class="panel-head">
+          <div><span class="dot cyan"></span> MINIMAX ANALYSIS</div>
+          <span id="analysisState">WAITING</span>
+        </div>
+        <div class="metric-grid">
+          <div class="metric"><span>NODES VISITED</span><strong id="nodes">0</strong></div>
+          <div class="metric"><span>SEARCH DEPTH</span><strong id="depth">0</strong></div>
+          <div class="metric"><span>BEST SCORE</span><strong id="bestScore">—</strong></div>
+          <div class="metric"><span>DECISION TIME</span><strong id="decisionTime">—</strong></div>
+        </div>
+        <div class="decision-box">
+          <div class="decision-label">AI DECISION</div>
+          <div id="decisionText">Make a move to activate the decision engine.</div>
+        </div>
+        <div class="legend">
+          <span><b class="max-dot"></b> MAX = AI</span>
+          <span><b class="min-dot"></b> MIN = HUMAN</span>
+          <span><b class="leaf-dot"></b> TERMINAL STATE</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel tree-panel">
+      <div class="panel-head">
+        <div><span class="dot purple"></span> SEARCH TREE EXPLORER</div>
+        <span id="treeCount">0 STATES</span>
+      </div>
+      <div class="tree-intro">The AI recursively explores possible future states, scores terminal outcomes, then propagates values upward: <b>MAX chooses the highest value</b>, while <b>MIN chooses the lowest</b>.</div>
+      <div id="tree" class="tree"></div>
+    </section>
+
+    <section class="panel history-panel">
+      <div class="panel-head">
+        <div>GAME HISTORY</div>
+        <button id="clearHistory" class="link-btn">Clear history</button>
+      </div>
+      <div class="history-wrap">
+        <table class="history">
+          <thead>
+            <tr><th>#</th><th>Result</th><th>Mode</th><th>You played</th><th>Moves</th><th>AI nodes</th><th>Played at</th></tr>
+          </thead>
+          <tbody id="historyBody">
+            <tr><td colspan="7" class="empty">No games yet.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="explain-grid">
+      <div class="panel explainer">
+        <div class="section-kicker">01 / CORE IDEA</div>
+        <h2>Why Minimax works here</h2>
+        <p>Tic-Tac-Toe is deterministic, turn-based and fully observable. Because its search space is small, the AI can examine future responses instead of relying on training data.</p>
+        <div class="formula"><span>MAX</span><b>↕</b><span>MIN</span><b>→</b><span>UTILITY</span></div>
+      </div>
+      <div class="panel explainer">
+        <div class="section-kicker">02 / UTILITY</div>
+        <h2>How outcomes are scored</h2>
+        <div class="utility"><div><b>+10</b><span>AI WIN</span></div><div><b>0</b><span>DRAW</span></div><div><b>−10</b><span>AI LOSS</span></div></div>
+        <p class="tiny">The engine also adjusts terminal scores by depth so a faster win is preferred and a delayed loss is preferred over an immediate loss.</p>
+      </div>
+      <div class="panel explainer">
+        <div class="section-kicker">03 / COMPLEXITY</div>
+        <h2>Search cost</h2>
+        <div class="complexity">O(b<sup>d</sup>)</div>
+        <p>For a general game tree, <b>b</b> is the branching factor and <b>d</b> is search depth. Tic-Tac-Toe remains small enough for exhaustive search.</p>
+      </div>
+    </section>
+
+    <footer>
+      <span>AI CASE STUDY • MINIMAX ALGORITHM</span>
+      <span>DEMO BUILD v1.0</span>
+    </footer>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
